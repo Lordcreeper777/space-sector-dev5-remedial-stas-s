@@ -1,4 +1,4 @@
-# Space Sector
+# Dev5 Project: Space Sector
 
 Space Sector is a Unity-based neighborhood surveillance simulation with a science-fiction theme.
 
@@ -43,3 +43,23 @@ Later, create a local `.env` file based on the template:
 ```bash
 cp .env.template .env
 ```
+
+## Sources
+
+### PostgreSQL with Docker Compose
+
+- **Docker Compose variable interpolation:**  
+  https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
+- **PostgreSQL official Docker image:**  
+  https://hub.docker.com/_/postgres
+- **Docker Compose service and health-check reference:**  
+  https://docs.docker.com/reference/compose-file/services/
+- **Accessed:** 6 August 2026
+- **Applied in:** `.env.template`, `.env`, and `docker-compose.yml`
+- **Usage:** These sources helped me understand how Docker Compose reads
+  environment variables, how the official PostgreSQL image is configured,
+  how database data can be persisted with a named volume, and how a health
+  check can determine whether PostgreSQL is ready.
+- **Own implementation:** I selected the variable names, database name,
+  container service name, ports, PostgreSQL version, volume name, and health
+  check settings for the requirements of Space Sector.
