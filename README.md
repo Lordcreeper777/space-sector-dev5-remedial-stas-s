@@ -17,11 +17,14 @@ Completed:
 - PostgreSQL running through Docker Compose
 - PostgreSQL health check
 - Persistent database storage verification
+- ASP.NET Core backend project created
+- Controller-based API routing configured
+- Project-specific `/health` endpoint created and tested
 
-The PostgreSQL database is currently runnable. The Unity application and
-backend API have not been created yet.
+The PostgreSQL database and basic ASP.NET Core API are currently runnable.
+The Unity application and database-backed API features have not been created yet.
 
-## Planned Technology
+## Technology Stack
 
 - Unity
 - C#
@@ -97,26 +100,85 @@ docker compose down -v
 
 unless the stored database data should be deleted.
 
+## Backend API
+
+The backend uses ASP.NET Core Web API with C# and is located in:
+
+```text
+backend/SpaceSector.Api
+```
+
+A controller-based structure is used to keep future features such as NPCs,
+cameras, detections, and sessions separated.
+
+The current API contains a health endpoint:
+
+```http
+GET /health
+```
+
+This endpoint was manually tested and returns a healthy status when the API is running.
+
+### Running the Backend API
+
+From the project root:
+
+```bash
+cd backend/SpaceSector.Api
+dotnet restore
+dotnet run
+```
+
+The API can be checked using:
+
+```bash
+curl http://localhost:5135/health
+```
+
+A successful response is:
+
+```json
+{
+	"status": "healthy",
+	"service": "SpaceSector.Api"
+}
+```
+
 ## AI Usage
 
-AI assistance is documented using:
+### ASP.NET Core backend structure
 
-- A specific conversation link
-- The question that was asked
-- The file, class, function, or configuration where it was applied
-- Changes made after receiving the response
-- An explanation of what was learned
+- **Conversation:**  
+  https://chatgpt.com/share/6a75ad45-cfb0-83eb-9a90-92136ed818c0
+- **Question:** How should I structure my ASP.NET Core backend for NPCs,
+  cameras, detections, and sessions while following SOLID principles?
+- **Follow-up:** Asked what should remain in `Program.cs` and what should be
+  moved into controllers or services as the project grows.
+- **Applied in:** Planning the structure of `backend/SpaceSector.Api`
+- **Usage:** The conversation helped me understand the separation of
+  responsibilities between `Program.cs`, controllers, services, repositories,
+  and models.
+- **Own implementation:** I will introduce these abstractions gradually when
+  the related features are implemented instead of generating the entire
+  backend at once.
 
 ### Project foundation and PostgreSQL setup
 
-- **Conversation:** Add the specific shared conversation link here.
-- **Applied in:** `.gitignore`, `.env.template`, `docker-compose.yml`, and
-  `README.md`
-- **Usage:** AI assistance helped divide the assignment into manageable steps
-  and explain the Git, Docker Compose, and PostgreSQL configuration.
-- **Own work:** I created the files, selected the project-specific values,
-  executed the commands, tested the database connection, and verified
-  persistent storage myself.
+- **Conversation:**  
+  https://chatgpt.com/share/6a75b354-3e60-83eb-873b-38f351bde4ec
+- **Question:** How should I set up PostgreSQL with Docker Compose using a
+  `.env` file and persistent storage?
+- **Follow-up:** Asked for a simpler explanation of the difference between
+  `docker compose restart`, `docker compose down`, and
+  `docker compose down -v`.
+- **Applied in:** `.env.template`, `docker-compose.yml`, and the PostgreSQL
+  persistence testing process.
+- **Usage:** The conversation helped me understand how Docker volumes keep
+  PostgreSQL data separate from the container and why removing a container
+  does not normally remove the database.
+- **Own work:** I configured the project-specific PostgreSQL service and
+  manually tested persistence by inserting data, restarting the container,
+  and checking that the data was still available.
 
 ## Sources
 
@@ -128,7 +190,6 @@ AI assistance is documented using:
   https://hub.docker.com/_/postgres
 - **Docker Compose service and health-check reference:**  
   https://docs.docker.com/reference/compose-file/services/
-- **Accessed:** 6 August 2026
 - **Applied in:** `.env.template`, `.env`, and `docker-compose.yml`
 - **Usage:** These sources helped me understand how Docker Compose reads
   environment variables, how the official PostgreSQL image is configured, how
@@ -137,3 +198,35 @@ AI assistance is documented using:
 - **Own implementation:** I selected the variable names, database name,
   container service name, ports, PostgreSQL version, volume name, and health
   check settings for the requirements of Space Sector.
+
+### ASP.NET Core Web API
+
+- **Source:**  
+  https://learn.microsoft.com/aspnet/core/web-api/
+- **Applied in:** `backend/SpaceSector.Api/Controllers/HealthController.cs`
+  and `Program.cs`
+- **Usage:** Used to understand controller-based ASP.NET Core Web APIs,
+  controller routing, `ControllerBase`, and HTTP actions.
+- **Own implementation:** I removed the generated WeatherForecast example and
+  created a project-specific `/health` endpoint for Space Sector.
+
+### .NET Web API project template
+
+- **Source:**  
+  https://learn.microsoft.com/dotnet/core/tools/dotnet-new-sdk-templates
+- **Accessed:** 7 August 2026
+- **Applied in:** `backend/SpaceSector.Api`
+- **Usage:** Used to understand the `dotnet new webapi` template and the
+  `--use-controllers` option.
+- **Own implementation:** I selected the project name and folder structure,
+  used the controller-based template, removed unnecessary generated example
+  code, and tested the API locally.
+
+### Microsoft.OpenApi package
+
+- **Source:**  
+  https://www.nuget.org/packages/Microsoft.OpenApi/2.11.0
+- **Applied in:** `backend/SpaceSector.Api/SpaceSector.Api.csproj`
+- **Usage:** The generated project initially contained an older package version
+  that produced a vulnerability warning. I updated it to version `2.11.0` and
+  confirmed that the project restored and built successfully.
