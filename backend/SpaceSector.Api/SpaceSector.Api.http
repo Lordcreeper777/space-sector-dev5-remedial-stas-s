@@ -1,0 +1,6 @@
+@SpaceSector_Api_HostAddress = http://localhost:5135
+
+GET {{SpaceSector_Api_HostAddress}}/health
+Accept: application/json
+
+###
