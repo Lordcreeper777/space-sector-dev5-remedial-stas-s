@@ -199,6 +199,24 @@ A successful response is:
   the containers, and manually verified the `/health` endpoint through
   `localhost:8081`.
 
+  ### NPC persistence and EF Core
+
+- **Conversation:** https://chatgpt.com/share/6a7a2ded-267c-83eb-a122-749e5ef7ed2f
+- **Questions:** Asked how NPC persistence should work with EF Core and PostgreSQL,
+  why a `DbContext` and migrations are needed, and how to prove
+  the data is actually persistent.
+- **Applied in:** `backend/SpaceSector.Api/Data/SpaceSectorDbContext.cs`,
+  `backend/SpaceSector.Api/Models/Npc.cs`,
+  `backend/SpaceSector.Api/Dtos/Npcs/CreateNpcRequest.cs`,
+  `backend/SpaceSector.Api/Services/Npcs/`,
+  `backend/SpaceSector.Api/Controllers/NpcsController.cs`,
+  and `backend/SpaceSector.Api/Migrations/`.
+- **Usage:** Used the conversation to understand and review the persistence
+  architecture and separation between controller, service, model, and database.
+- **Own work:** Implemented the NPC persistence flow, created and applied the
+  migration, tested `POST /npcs`, verified the NPC directly in PostgreSQL, and
+  confirmed the same NPC remained after recreating the Docker containers.
+
 ## Sources
 
 ### PostgreSQL with Docker Compose
@@ -278,3 +296,24 @@ the local services with `docker compose up --build`.
 **Own implementation and testing:** Configured the Dockerfile and Compose API
 service for Space Sector, built the containers locally, verified PostgreSQL became
 healthy, and manually tested `GET /health` through `http://localhost:8081`.
+
+### NPC persistence with EF Core and PostgreSQL
+
+- **EF Core migrations:**  
+  https://learn.microsoft.com/ef/core/managing-schemas/migrations/
+- **EF Core command-line tools:**  
+  https://learn.microsoft.com/ef/core/cli/dotnet
+- **ASP.NET Core model validation:**  
+  https://learn.microsoft.com/aspnet/core/mvc/models/validation
+- **Npgsql EF Core provider:**  
+  https://www.npgsql.org/efcore/
+
+**Applied in:** NPC model, DTO validation, `SpaceSectorDbContext`, migrations,
+service layer, and PostgreSQL connection.
+
+**Usage:** Used to understand EF Core migrations, PostgreSQL integration,
+request validation, and database persistence.
+
+**Own implementation and testing:** Created an NPC through `POST /npcs`,
+verified its GUID and cleaned name in PostgreSQL, restarted the Docker stack,
+and confirmed the same NPC record still existed.
