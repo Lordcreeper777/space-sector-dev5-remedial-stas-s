@@ -7,13 +7,13 @@
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 [Mm]emoryCaptures/
+[Bb]in/
 
 # IDE files
 .vscode/
 .idea/
 .vs/
-*.csproj
-*.sln
+
 *.suo
 *.user
 *.userprefs
