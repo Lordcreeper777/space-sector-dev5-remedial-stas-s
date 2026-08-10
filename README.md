@@ -20,6 +20,12 @@ Completed:
 - ASP.NET Core backend project created
 - Controller-based API routing configured
 - Project-specific `/health` endpoint created and tested
+  ASP.NET Core API containerized with Docker
+- Multi-stage Docker build configured
+- API and PostgreSQL started together with Docker Compose
+- API waits for PostgreSQL health check before starting
+- Dockerized `/health` endpoint tested through `localhost:8081`
+- `docker compose up --build` successfully tested
 
 The PostgreSQL database and basic ASP.NET Core API are currently runnable.
 The Unity application and database-backed API features have not been created yet.
@@ -180,6 +186,19 @@ A successful response is:
   manually tested persistence by inserting data, restarting the container,
   and checking that the data was still available.
 
+  ### Dockerized API and Docker troubleshooting
+
+- **Conversation:** https://chatgpt.com/share/6a79b99a-d698-83eb-92f1-bf3014870afc
+- **Questions:** Asked about the purpose of `.dockerignore`, Docker port mapping,
+  container port conflicts, and how to diagnose a missing `Dockerfile` error.
+- **Applied in:** `backend/SpaceSector.Api/Dockerfile`,
+  `backend/SpaceSector.Api/.dockerignore`, and `docker-compose.yml`.
+- **Usage:** Used the conversation to better understand the Docker setup and
+  review the choices made for the API container.
+- **Own work:** Moved the Docker files to the correct API directory, rebuilt
+  the containers, and manually verified the `/health` endpoint through
+  `localhost:8081`.
+
 ## Sources
 
 ### PostgreSQL with Docker Compose
@@ -230,3 +249,32 @@ A successful response is:
 - **Usage:** The generated project initially contained an older package version
   that produced a vulnerability warning. I updated it to version `2.11.0` and
   confirmed that the project restored and built successfully.
+
+  ### Dockerized ASP.NET Core API
+
+- **ASP.NET Core with Docker:**  
+  https://learn.microsoft.com/aspnet/core/host-and-deploy/docker/building-net-docker-images?view=aspnetcore-10.0
+- **Docker multi-stage builds:**  
+  https://docs.docker.com/build/building/multi-stage/
+- **Docker build context and `.dockerignore`:**  
+  https://docs.docker.com/build/concepts/context/
+- **Docker Compose startup order and health checks:**  
+  https://docs.docker.com/compose/how-tos/startup-order/
+- **Docker Compose `up`:**  
+  https://docs.docker.com/reference/cli/docker/compose/up/
+- **ASP.NET Core container port 8080:**  
+  https://learn.microsoft.com/dotnet/core/compatibility/containers/8.0/aspnet-port
+
+**Applied in:**
+
+- `backend/SpaceSector.Api/Dockerfile`
+- `backend/SpaceSector.Api/.dockerignore`
+- `docker-compose.yml`
+
+**Usage:** The documentation was used to understand multi-stage .NET container builds,
+Docker build contexts, service dependency health checks, port mapping, and running
+the local services with `docker compose up --build`.
+
+**Own implementation and testing:** Configured the Dockerfile and Compose API
+service for Space Sector, built the containers locally, verified PostgreSQL became
+healthy, and manually tested `GET /health` through `http://localhost:8081`.
