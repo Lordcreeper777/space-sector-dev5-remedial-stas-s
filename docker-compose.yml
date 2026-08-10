@@ -10,6 +10,7 @@ services:
 
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__SpaceSectorDb: "Host=database;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
 
     depends_on:
       database:
