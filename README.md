@@ -26,6 +26,12 @@ Completed:
 - API waits for PostgreSQL health check before starting
 - Dockerized `/health` endpoint tested through `localhost:8081`
 - `docker compose up --build` successfully tested
+- Persistent surveillance cameras with validated range and field of view
+- Persistent simulation sessions and camera detection records
+- Detection validation against existing NPCs, cameras, and sessions
+- Camera range and field-of-view visibility calculation
+- Blind-spot identification and coverage percentage
+- Basic surveillance score based on coverage
 
 The PostgreSQL database and basic ASP.NET Core API are currently runnable.
 The Unity application and database-backed API features have not been created yet.
@@ -217,6 +223,32 @@ A successful response is:
   migration, tested `POST /npcs`, verified the NPC directly in PostgreSQL, and
   confirmed the same NPC remained after recreating the Docker containers.
 
+  ### Surveillance system
+
+- **Conversation:**  
+  https://chatgpt.com/share/6a7b2bcf-6804-83ed-8300-48af62a4b2f4
+
+- **Questions discussed:**
+
+  - How to determine whether an NPC is inside a camera's range and field of view
+  - How blind spots should work when multiple cameras exist
+  - Whether an NPC should count as covered when at least one camera sees it
+  - Where to validate detection IDs that do not exist
+  - Whether the service should check that the session, camera and NPC exist before saving a detection
+  - Troubleshooting questions related to the project
+
+- **Applied in:**
+
+  - `Services/Surveillance/CameraVisibilityService.cs`
+  - `Services/Surveillance/SurveillanceService.cs`
+  - `Services/Detections/DetectionService.cs`
+  - `Controllers/DetectionsController.cs`
+
+- **Usage:**  
+  AI was used to understand and review camera visibility calculations, blind-spot logic,
+  detection validation and troubleshooting decisions. The project structure, implementation
+  choices and final code were applied and tested within Space Sector.
+
 ## Sources
 
 ### PostgreSQL with Docker Compose
@@ -317,3 +349,33 @@ request validation, and database persistence.
 **Own implementation and testing:** Created an NPC through `POST /npcs`,
 verified its GUID and cleaned name in PostgreSQL, restarted the Docker stack,
 and confirmed the same NPC record still existed.
+
+### Surveillance system
+
+- **EF Core relationships:**  
+  https://learn.microsoft.com/ef/core/modeling/relationships
+- **ASP.NET Core model validation:**  
+  https://learn.microsoft.com/aspnet/core/mvc/models/validation
+- **System.Numerics `Vector2`:**  
+  https://learn.microsoft.com/dotnet/api/system.numerics.vector2
+- **EF Core tracking and `AsNoTracking`:**  
+  https://learn.microsoft.com/ef/core/querying/tracking
+
+**Applied in:**
+
+- `Models/Camera.cs`
+- `Models/Detection.cs`
+- `Models/SimulationSession.cs`
+- `Dtos/Cameras/`
+- `Dtos/Detections/`
+- `Services/Surveillance/`
+- `Controllers/SurveillanceController.cs`
+
+**Usage:** Used to understand EF Core relationships, ASP.NET request validation,
+read-only database queries, and vector operations used for camera range and
+field-of-view calculations.
+
+**Own implementation and testing:** Implemented camera persistence, sessions,
+detections, visibility checks, blind-spot calculations, coverage percentage,
+and scoring. Manually tested valid and invalid camera/detection requests and
+verified stored records directly in PostgreSQL.

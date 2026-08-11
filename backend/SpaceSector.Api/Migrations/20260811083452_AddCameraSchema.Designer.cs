@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SpaceSector.Api.Data;
@@ -11,9 +12,11 @@ using SpaceSector.Api.Data;
 namespace SpaceSector.Api.Migrations
 {
     [DbContext(typeof(SpaceSectorDbContext))]
-    partial class SpaceSectorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260811083452_AddCameraSchema")]
+    partial class AddCameraSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,35 +61,6 @@ namespace SpaceSector.Api.Migrations
                     b.ToTable("Cameras");
                 });
 
-            modelBuilder.Entity("SpaceSector.Api.Models.Detection", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CameraId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("DetectedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("NpcId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("SimulationSessionId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CameraId");
-
-                    b.HasIndex("NpcId");
-
-                    b.HasIndex("SimulationSessionId");
-
-                    b.ToTable("Detections");
-                });
-
             modelBuilder.Entity("SpaceSector.Api.Models.Npc", b =>
                 {
                     b.Property<Guid>("Id")
@@ -112,50 +86,6 @@ namespace SpaceSector.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Npcs");
-                });
-
-            modelBuilder.Entity("SpaceSector.Api.Models.SimulationSession", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("EndedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("StartedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SimulationSessions");
-                });
-
-            modelBuilder.Entity("SpaceSector.Api.Models.Detection", b =>
-                {
-                    b.HasOne("SpaceSector.Api.Models.Camera", "Camera")
-                        .WithMany()
-                        .HasForeignKey("CameraId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SpaceSector.Api.Models.Npc", "Npc")
-                        .WithMany()
-                        .HasForeignKey("NpcId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SpaceSector.Api.Models.SimulationSession", "SimulationSession")
-                        .WithMany()
-                        .HasForeignKey("SimulationSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Camera");
-
-                    b.Navigation("Npc");
-
-                    b.Navigation("SimulationSession");
                 });
 #pragma warning restore 612, 618
         }
