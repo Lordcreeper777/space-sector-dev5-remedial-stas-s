@@ -39,4 +39,12 @@ public class SurveillanceController : ControllerBase
             });
         }
     }
+
+    [HttpGet("summary")]
+public async Task<IActionResult> GetSummary()
+{
+    var summary = await _surveillanceService.GetSummaryAsync();
+
+    return Ok(summary);
+}
 }
