@@ -4,6 +4,7 @@ using SpaceSector.Api.Services.Npcs;
 using SpaceSector.Api.Services.Cameras;
 using SpaceSector.Api.Services.Sessions;
 using SpaceSector.Api.Services.Detections;
+using SpaceSector.Api.Services.Surveillance;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,8 @@ builder.Services.AddScoped<INpcService, NpcService>();
 builder.Services.AddScoped<ICameraService, CameraService>();
 builder.Services.AddScoped<ISimulationSessionService, SimulationSessionService>();
 builder.Services.AddScoped<IDetectionService, DetectionService>();
+builder.Services.AddScoped<ICameraVisibilityService, CameraVisibilityService>();
+builder.Services.AddScoped<ISurveillanceService, SurveillanceService>();
 
 var app = builder.Build();
 
