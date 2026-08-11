@@ -10,5 +10,7 @@ public class SurveillanceSummary
 
     public float CoveragePercentage { get; set; }
 
+    public int Score { get; set; }
+
     public List<Guid> BlindSpotNpcIds { get; set; } = [];
 }

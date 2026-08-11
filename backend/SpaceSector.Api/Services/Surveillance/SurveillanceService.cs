@@ -64,12 +64,17 @@ public class SurveillanceService : ISurveillanceService
         ? 0f
         : coveredNpcs * 100f / totalNpcs;
 
+        var score = (int)MathF.Round(coveragePercentage);
+
+
+
     return new SurveillanceSummary
     {
         TotalNpcs = totalNpcs,
         CoveredNpcs = coveredNpcs,
         BlindSpotNpcs = blindSpotNpcs,
         CoveragePercentage = coveragePercentage,
+        Score = score,
         BlindSpotNpcIds = blindSpotNpcIds
     };
 }
