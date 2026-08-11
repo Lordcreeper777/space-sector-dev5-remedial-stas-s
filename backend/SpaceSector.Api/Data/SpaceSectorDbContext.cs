@@ -11,4 +11,5 @@ public class SpaceSectorDbContext : DbContext
     }
 
     public DbSet<Npc> Npcs => Set<Npc>();
+    public DbSet<Camera> Cameras => Set<Camera>();
 }

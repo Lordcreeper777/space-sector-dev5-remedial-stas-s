@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SpaceSector.Api.Data;
 using SpaceSector.Api.Services.Npcs;
+using SpaceSector.Api.Services.Cameras;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddDbContext<SpaceSectorDbContext>(options =>
         builder.Configuration.GetConnectionString("SpaceSectorDb")));
 
 builder.Services.AddScoped<INpcService, NpcService>();
+builder.Services.AddScoped<ICameraService, CameraService>();
 
 var app = builder.Build();
 
