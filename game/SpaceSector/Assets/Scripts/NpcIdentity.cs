@@ -5,6 +5,12 @@ public class NpcIdentity : MonoBehaviour
     [SerializeField] private string displayName;
 
     public string DisplayName => displayName;
+    public string BackendId { get; private set; }
+
+    public void SetBackendId(string id)
+{
+    BackendId = id;
+}
 
     private void OnGUI()
     {
@@ -34,8 +40,15 @@ public class NpcIdentity : MonoBehaviour
             screenPosition.x - 75f,
             Screen.height - screenPosition.y - 15f,
             150f,
-            30f);
+            55f);
 
-        GUI.Label(labelPosition, displayName, style);
+        var label = displayName;
+
+        if (!string.IsNullOrWhiteSpace(BackendId))
+        {
+            label += $"\nID: {BackendId[..8]}";
+        }
+
+        GUI.Label(labelPosition, label, style);
     }
 }

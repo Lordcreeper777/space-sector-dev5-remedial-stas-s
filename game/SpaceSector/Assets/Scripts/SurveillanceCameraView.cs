@@ -3,9 +3,20 @@ using UnityEngine;
 
 public class SurveillanceCameraView : MonoBehaviour
 {
+    public event System.Action<SurveillanceCameraView, NpcIdentity> NpcDetected;
+
     [SerializeField] private float range = 10f;
     [SerializeField] private float fieldOfView = 60f;
     [SerializeField] private bool showDetectionLines = true;
+
+  
+
+    public string BackendId { get; private set; }
+
+    public void SetBackendId(string id)
+    {
+        BackendId = id;
+    }
 
     private NpcMovement[] npcs;
     private readonly HashSet<NpcMovement> detectedNpcs = new();
@@ -26,12 +37,19 @@ public class SurveillanceCameraView : MonoBehaviour
 
             if (canSeeNpc)
             {
-                if (detectedNpcs.Add(npc))
-                {
-                    var identity = npc.GetComponent<NpcIdentity>();
-                    var npcName = identity != null ? identity.DisplayName : npc.name;
-                    Debug.Log($"{name} detected {npc.name}");
-                }
+                    if (detectedNpcs.Add(npc))
+    {
+        var identity = npc.GetComponent<NpcIdentity>();
+        var npcName = identity != null ? identity.DisplayName : npc.name;
+
+        Debug.Log($"{name} detected {npcName}");
+
+        if (identity != null)
+        {
+            Debug.Log("Sending detection event.");
+            NpcDetected?.Invoke(this, identity);
+        }
+    }
 
                 if (showDetectionLines)
                 {
