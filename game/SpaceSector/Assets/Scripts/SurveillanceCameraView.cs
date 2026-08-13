@@ -28,6 +28,8 @@ public class SurveillanceCameraView : MonoBehaviour
             {
                 if (detectedNpcs.Add(npc))
                 {
+                    var identity = npc.GetComponent<NpcIdentity>();
+                    var npcName = identity != null ? identity.DisplayName : npc.name;
                     Debug.Log($"{name} detected {npc.name}");
                 }
 
@@ -38,6 +40,8 @@ public class SurveillanceCameraView : MonoBehaviour
             }
             else if (detectedNpcs.Remove(npc))
             {
+                var identity = npc.GetComponent<NpcIdentity>();
+                var npcName = identity != null ? identity.DisplayName : npc.name;       
                 Debug.Log($"{name} lost {npc.name}");
             }
         }

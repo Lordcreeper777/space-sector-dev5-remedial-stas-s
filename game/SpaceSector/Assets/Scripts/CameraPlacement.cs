@@ -19,9 +19,10 @@ public class CameraPlacement : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit) && hit.collider.CompareTag("Ground"))
         {
             var position = hit.point;
-            position.y = 0.5f;
+            position.y = 5f;
 
-           var placedCamera = Instantiate(cameraPrefab, position, Quaternion.identity);
+           var rotation = Quaternion.Euler(0f, 180f, 0f);
+var placedCamera = Instantiate(cameraPrefab, position, rotation);
 placedCamera.name = $"SurveillanceCamera_{FindObjectsByType<SurveillanceCameraView>(FindObjectsSortMode.None).Length}";
         }
     }
