@@ -1,6 +1,7 @@
 using SpaceSector.Api.Data;
 using SpaceSector.Api.Dtos.Npcs;
 using SpaceSector.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SpaceSector.Api.Services.Npcs;
 
@@ -35,6 +36,12 @@ public class NpcService : INpcService
 
         return npc;
     
+    }
+        public async Task<List<Npc>> GetAllAsync()
+    {
+        return await _dbContext.Npcs
+            .AsNoTracking()
+            .ToListAsync();
     }
 }
 

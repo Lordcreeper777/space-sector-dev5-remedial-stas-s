@@ -23,4 +23,11 @@ public class NpcsController : ControllerBase
 
         return StatusCode(StatusCodes.Status201Created, npc);
     }
+
+        [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var npcs = await _npcService.GetAllAsync();
+        return Ok(npcs);
+    }
 }

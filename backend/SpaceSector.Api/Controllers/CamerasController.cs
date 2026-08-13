@@ -23,4 +23,10 @@ public class CamerasController : ControllerBase
 
         return StatusCode(StatusCodes.Status201Created, camera);
     }
+        [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var cameras = await _cameraService.GetAllAsync();
+        return Ok(cameras);
+    }
 }

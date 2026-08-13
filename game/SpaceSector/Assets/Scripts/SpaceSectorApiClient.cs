@@ -7,6 +7,9 @@ public class SpaceSectorApiClient : MonoBehaviour
     [SerializeField] private string baseUrl = "http://localhost:8081";
     [SerializeField] private NpcIdentity[] npcsToRegister;
     [SerializeField] private SurveillanceCameraView[] camerasToRegister;
+    private SurveillanceSummaryResponse latestSummary;
+    private NpcResponse[] existingNpcs;
+    private CameraResponse[] existingCameras;
 
     public string CurrentSessionId { get; private set; }
 
@@ -52,26 +55,97 @@ public class SpaceSectorApiClient : MonoBehaviour
     }
 
         [System.Serializable]
+    private class SurveillanceSummaryResponse
+    {
+        public int totalNpcs;
+        public int coveredNpcs;
+        public int blindSpotNpcs;
+        public float coveragePercentage;
+        public int score;
+    }
+
+        [System.Serializable]
     private class CreateDetectionRequest
     {
         public string simulationSessionId;
         public string cameraId;
         public string npcId;
     }
+        [System.Serializable]
+    private class NpcListResponse
+    {
+        public NpcResponse[] items;
+    }
+
+    [System.Serializable]
+    private class CameraListResponse
+    {
+        public CameraResponse[] items;
+    }
 
     private IEnumerator Start()
-    {
+{
     yield return CheckHealth();
     yield return StartSimulationSession();
+    yield return GetExistingNpcs();
+    yield return GetExistingCameras();
 
     foreach (var npc in npcsToRegister)
     {
+         NpcResponse existingNpc = null;
+
+    if (existingNpcs != null)
+    {
+        foreach (var candidate in existingNpcs)
+        {
+            if (candidate.name == npc.DisplayName)
+            {
+                existingNpc = candidate;
+                break;
+            }
+        }
+    }
+
+    if (existingNpc != null)
+    {
+        npc.SetBackendId(existingNpc.id);
+
+        Debug.Log(
+            $"NPC reused: {existingNpc.name} - {existingNpc.id}");
+    }
+    else
+    {
         yield return CreateNpc(npc);
+    }
     }
 
     foreach (var cameraView in camerasToRegister)
     {
+      CameraResponse existingCamera = null;
+
+    if (existingCameras != null)
+    {
+        foreach (var candidate in existingCameras)
+        {
+            if (candidate.name == cameraView.name)
+            {
+                existingCamera = candidate;
+                break;
+            }
+        }
+    }
+
+    if (existingCamera != null)
+    {
+        cameraView.SetBackendId(existingCamera.id);
+
+        Debug.Log(
+            $"Camera reused: {existingCamera.name} - {existingCamera.id}");
+    }
+    else
+    {
         yield return CreateCamera(cameraView);
+    }
     }
 
     foreach (var cameraView in camerasToRegister)
@@ -80,6 +154,8 @@ public class SpaceSectorApiClient : MonoBehaviour
     }
 
     Debug.Log("Detection events connected.");
+
+    yield return GetSurveillanceSummary();
 }
 
     private IEnumerator CheckHealth()
@@ -271,6 +347,117 @@ private IEnumerator CreateCamera(SurveillanceCameraView cameraView)
         Debug.LogError(
             $"Detection save failed: {request.downloadHandler.text}");
     }
+}
+
+    private IEnumerator GetSurveillanceSummary()
+{
+    using var request =
+        UnityWebRequest.Get($"{baseUrl}/surveillance/summary");
+
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        var summary =
+            JsonUtility.FromJson<SurveillanceSummaryResponse>(
+                request.downloadHandler.text);
+
+        latestSummary = summary;
+
+        Debug.Log(
+            $"Summary: {summary.coveragePercentage}% coverage, " +
+            $"{summary.blindSpotNpcs} blind spots, score {summary.score}");
+    }
+    else
+    {
+        Debug.LogError(
+            $"Summary request failed: {request.downloadHandler.text}");
+    }
+}
+
+private void OnGUI()
+{
+    if (latestSummary == null)
+    {
+        return;
+    }
+
+    var style = new GUIStyle(GUI.skin.box)
+    {
+        fontSize = 20,
+        alignment = TextAnchor.UpperLeft
+    };
+
+    GUI.Box(
+        new Rect(20f, 20f, 280f, 110f),
+        $"Surveillance Summary\n" +
+        $"Coverage: {latestSummary.coveragePercentage:F1}%\n" +
+        $"Blind spots: {latestSummary.blindSpotNpcs}\n" +
+        $"Score: {latestSummary.score}",
+        style);
+}
+
+    public void RegisterRuntimeCamera(SurveillanceCameraView cameraView)
+    {
+        StartCoroutine(RegisterRuntimeCameraCoroutine(cameraView));
+    }
+
+    private IEnumerator RegisterRuntimeCameraCoroutine(
+        SurveillanceCameraView cameraView)
+    {
+        yield return CreateCamera(cameraView);
+
+        cameraView.NpcDetected += HandleNpcDetected;
+
+        yield return GetSurveillanceSummary();
+    }
+    private IEnumerator GetExistingNpcs()
+{
+    using var request = UnityWebRequest.Get($"{baseUrl}/npcs");
+
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        var wrappedJson =
+            $"{{\"items\":{request.downloadHandler.text}}}";
+
+        var response =
+            JsonUtility.FromJson<NpcListResponse>(wrappedJson);
+
+        existingNpcs = response.items;
+
+        Debug.Log($"Loaded {existingNpcs.Length} existing NPCs.");
+    }
+    else
+    {
+        Debug.LogError(
+            $"Failed to load NPCs: {request.downloadHandler.text}");
+    }
+}
+    private IEnumerator GetExistingCameras()
+    {
+        using var request = UnityWebRequest.Get($"{baseUrl}/cameras");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            var wrappedJson =
+                $"{{\"items\":{request.downloadHandler.text}}}";
+
+            var response =
+                JsonUtility.FromJson<CameraListResponse>(wrappedJson);
+
+            existingCameras = response.items;
+
+            Debug.Log($"Loaded {existingCameras.Length} existing cameras.");
+        }
+        else
+        {
+            Debug.LogError(
+                $"Failed to load cameras: {request.downloadHandler.text}");
+        }
 }
 
 }
