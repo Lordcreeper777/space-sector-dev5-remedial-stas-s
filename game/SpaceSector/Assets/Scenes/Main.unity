@@ -123,6 +123,24 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &76983368 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6570522422023434186, guid: ec16f2615029d4deeb80ae3bc7af59b1, type: 3}
+  m_PrefabInstance: {fileID: 3178112755226886217}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &76983374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76983368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd991417745124645b91fa636bf34d32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayName: Kira
 --- !u!1001 &269564168
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -289,6 +307,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &649797526 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7314264951481514187, guid: e050766346a3c485f8f456e55fa55f36, type: 3}
+  m_PrefabInstance: {fileID: 269564168}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdc9e58016f704b78b25b272ac23df47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,6 +422,7 @@ GameObject:
   m_Component:
   - component: {fileID: 723967904}
   - component: {fileID: 723967903}
+  - component: {fileID: 723967905}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -413,6 +443,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraPrefab: {fileID: 8466286373938483929, guid: e050766346a3c485f8f456e55fa55f36, type: 3}
+  apiClient: {fileID: 723967905}
 --- !u!4 &723967904
 Transform:
   m_ObjectHideFlags: 0
@@ -428,6 +459,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &723967905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 723967902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2764cd0d00d7401082eeb5fd4695953, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseUrl: http://localhost:8081
+  npcsToRegister:
+  - {fileID: 76983374}
+  - {fileID: 957637484}
+  camerasToRegister:
+  - {fileID: 1337198717}
+  - {fileID: 649797526}
 --- !u!1 &957637478
 GameObject:
   m_ObjectHideFlags: 0
@@ -441,6 +491,7 @@ GameObject:
   - component: {fileID: 957637481}
   - component: {fileID: 957637480}
   - component: {fileID: 957637479}
+  - component: {fileID: 957637484}
   m_Layer: 0
   m_Name: NPC_02
   m_TagString: Untagged
@@ -550,6 +601,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &957637484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 957637478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd991417745124645b91fa636bf34d32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayName: Orion
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -642,6 +706,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 40, y: 0, z: 0}
+--- !u!114 &1337198717 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7314264951481514187, guid: e050766346a3c485f8f456e55fa55f36, type: 3}
+  m_PrefabInstance: {fileID: 3624420021140433379}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdc9e58016f704b78b25b272ac23df47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1505896762
 GameObject:
   m_ObjectHideFlags: 0
@@ -703,7 +778,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: b2f2c1fa84b6a493fb3e1d713426c71c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -912,7 +987,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6570522422023434186, guid: ec16f2615029d4deeb80ae3bc7af59b1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 76983374}
   m_SourcePrefab: {fileID: 100100000, guid: ec16f2615029d4deeb80ae3bc7af59b1, type: 3}
 --- !u!1001 &3624420021140433379
 PrefabInstance:

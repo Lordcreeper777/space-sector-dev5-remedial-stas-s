@@ -1,6 +1,7 @@
 using SpaceSector.Api.Data;
 using SpaceSector.Api.Dtos.Cameras;
 using SpaceSector.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SpaceSector.Api.Services.Cameras;
 
@@ -37,5 +38,11 @@ public class CameraService : ICameraService
         await _dbContext.SaveChangesAsync();
 
         return camera;
+    }
+        public async Task<List<Camera>> GetAllAsync()
+    {
+        return await _dbContext.Cameras
+            .AsNoTracking()
+            .ToListAsync();
     }
 }
