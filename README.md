@@ -33,6 +33,15 @@ Completed:
 - Blind-spot identification and coverage percentage
 - Basic surveillance score based on coverage
 
+  Unity connects to the local ASP.NET Core API
+  Simulation sessions are created and persisted in PostgreSQL
+  Unity NPCs receive persistent backend GUIDs
+  Surveillance cameras receive persistent backend GUIDs
+  Camera detections are sent from Unity and stored in PostgreSQL
+  Existing NPCs and starting cameras are reused instead of duplicated on every Play session
+  Player-placed cameras are registered and persisted through the API
+  Surveillance coverage, blind spots and score are read from the backend and displayed in the Unity Game view
+
 The PostgreSQL database and basic ASP.NET Core API are currently runnable.
 The Unity application and database-backed API features have not been created yet.
 
@@ -249,6 +258,29 @@ A successful response is:
   detection validation and troubleshooting decisions. The project structure, implementation
   choices and final code were applied and tested within Space Sector.
 
+  ### AI usage – Unity API integration
+
+**Conversation:** <https://chatgpt.com/share/6a7f6d4a-e730-83ed-b6e8-b44f99a80e91>
+
+**Questions discussed:**
+
+- How should Unity communicate with the ASP.NET Core API using `UnityWebRequest`?
+- How can Unity serialize request data and deserialize JSON responses?
+- How should persistent NPC and camera GUIDs be linked back to Unity objects?
+- How can existing NPCs and cameras be reused instead of creating duplicates on every Play session?
+- How should runtime-placed cameras be registered with the backend?
+- How can camera detection events be sent to the API and persisted in PostgreSQL?
+- How can surveillance summary data be retrieved and displayed inside Unity?
+- How can Unity camera visibility use range, field of view and raycasting for obstacles?
+
+**Applied in:**
+
+- `SpaceSectorApiClient.cs`
+- `CameraPlacement.cs`
+- `NpcIdentity.cs`
+- `SurveillanceCameraView.cs`
+- NPC/camera GET endpoints in the ASP.NET Core backend
+
 ## Sources
 
 ### PostgreSQL with Docker Compose
@@ -379,3 +411,44 @@ field-of-view calculations.
 detections, visibility checks, blind-spot calculations, coverage percentage,
 and scoring. Manually tested valid and invalid camera/detection requests and
 verified stored records directly in PostgreSQL.
+
+### Unity API integration
+
+- **UnityWebRequest – interacting with web servers:**
+  https://docs.unity3d.com/Manual/web-request.html
+
+- **Unity JsonUtility:**
+  https://docs.unity3d.com/ScriptReference/JsonUtility.html
+
+- **Physics.Raycast:**
+  https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Physics.Raycast.html
+
+- **Unity Prefabs:**
+  https://docs.unity3d.com/6000.1/Documentation/Manual/Prefabs.html
+
+- **Instantiating prefabs at runtime:**
+  https://docs.unity3d.com/6000.2/Documentation/Manual/instantiating-prefabs.html
+
+- **Object.FindObjectsByType:**
+  https://docs.unity3d.com/6000.4/Documentation/ScriptReference/Object.FindObjectsByType.html
+
+- **ASP.NET Core Web API:**
+  https://learn.microsoft.com/aspnet/core/web-api/?view=aspnetcore-10.0
+
+- **ASP.NET Core controller routing:**
+  https://learn.microsoft.com/aspnet/core/mvc/controllers/routing?view=aspnetcore-10.0
+
+**Applied in:**
+
+- `game/SpaceSector/Assets/Scripts/SpaceSectorApiClient.cs`
+- `game/SpaceSector/Assets/Scripts/CameraPlacement.cs`
+- `game/SpaceSector/Assets/Scripts/NpcIdentity.cs`
+- `game/SpaceSector/Assets/Scripts/SurveillanceCameraView.cs`
+- `game/SpaceSector/Assets/Prefabs/Npc.prefab`
+- `game/SpaceSector/Assets/Prefabs/SurveillanceCamera_01.prefab`
+- `backend/SpaceSector.Api/Controllers/NpcsController.cs`
+- `backend/SpaceSector.Api/Controllers/CamerasController.cs`
+
+**Usage:** Used to understand Unity HTTP communication and JSON serialization, raycasting and line-of-sight checks, reusable prefabs and runtime prefab instantiation, locating component instances in the scene, and controller-based ASP.NET Core API endpoints.
+
+**Own implementation and testing:** Implemented Unity API communication for sessions, NPCs, cameras and detections; reused persisted entities to prevent duplicates; registered runtime cameras; added obstacle-based camera visibility and ground-only placement; retrieved surveillance summary data; displayed persisted coverage, blind spots and score in Unity; and verified stored detections directly in PostgreSQL.

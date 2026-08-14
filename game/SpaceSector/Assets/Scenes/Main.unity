@@ -443,6 +443,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraPrefab: {fileID: 8466286373938483929, guid: e050766346a3c485f8f456e55fa55f36, type: 3}
+  apiClient: {fileID: 723967905}
 --- !u!4 &723967904
 Transform:
   m_ObjectHideFlags: 0
