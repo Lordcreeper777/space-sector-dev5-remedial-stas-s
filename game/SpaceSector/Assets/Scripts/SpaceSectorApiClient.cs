@@ -12,6 +12,16 @@ public class SpaceSectorApiClient : MonoBehaviour
     private CameraResponse[] existingCameras;
 
     public string CurrentSessionId { get; private set; }
+    public float CoveragePercentage =>
+    latestSummary != null ? latestSummary.coveragePercentage : 0f;
+    public int BlindSpotCount =>
+        latestSummary != null ? latestSummary.blindSpotNpcs : 0;
+    public int Score =>
+        latestSummary != null ? latestSummary.score : 0;
+    public int TotalNpcCount =>
+        latestSummary != null ? latestSummary.totalNpcs : 0;
+    public int CoveredNpcCount =>
+        latestSummary != null ? latestSummary.coveredNpcs : 0;
 
     [System.Serializable]
     private class SimulationSessionResponse
@@ -373,28 +383,6 @@ private IEnumerator CreateCamera(SurveillanceCameraView cameraView)
         Debug.LogError(
             $"Summary request failed: {request.downloadHandler.text}");
     }
-}
-
-private void OnGUI()
-{
-    if (latestSummary == null)
-    {
-        return;
-    }
-
-    var style = new GUIStyle(GUI.skin.box)
-    {
-        fontSize = 20,
-        alignment = TextAnchor.UpperLeft
-    };
-
-    GUI.Box(
-        new Rect(20f, 20f, 280f, 110f),
-        $"Surveillance Summary\n" +
-        $"Coverage: {latestSummary.coveragePercentage:F1}%\n" +
-        $"Blind spots: {latestSummary.blindSpotNpcs}\n" +
-        $"Score: {latestSummary.score}",
-        style);
 }
 
     public void RegisterRuntimeCamera(SurveillanceCameraView cameraView)
