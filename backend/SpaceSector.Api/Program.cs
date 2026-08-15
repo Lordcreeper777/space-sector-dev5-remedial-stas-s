@@ -10,6 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("UnityWebGL", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:8080")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddDbContext<SpaceSectorDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("SpaceSectorDb")));
@@ -35,6 +46,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("UnityWebGL");
 
 app.UseAuthorization();
 
