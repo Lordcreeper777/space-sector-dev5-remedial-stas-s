@@ -1,0 +1,36 @@
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Bb]in/
+
+# IDE files
+.vscode/
+.idea/
+.vs/
+
+*.suo
+*.user
+*.userprefs
+
+# macOS and Windows files
+.DS_Store
+Thumbs.db
+
+# Local environment variables
+.env
+
+# Build files
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# Keep the generated WebGL build required by the Docker game container
+!game/SpaceSector/WebGLBuild/Build/
+!game/SpaceSector/WebGLBuild/Build/**
