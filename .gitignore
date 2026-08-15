@@ -30,3 +30,7 @@ Thumbs.db
 *.aab
 *.unitypackage
 *.app
+
+# Keep the generated WebGL build required by the Docker game container
+!game/SpaceSector/WebGLBuild/Build/
+!game/SpaceSector/WebGLBuild/Build/**
