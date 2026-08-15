@@ -3,77 +3,112 @@
 Space Sector is a Unity-based neighborhood surveillance simulation with an
 original science-fiction theme.
 
-The player will place surveillance devices in a space colony sector and monitor
-distinguishable NPCs. Detected NPCs, positions, cameras, simulation sessions,
-blind spots, and scores will be stored in a PostgreSQL database.
+The player places surveillance devices in a space colony sector and monitors
+distinguishable NPCs. NPCs, cameras, simulation sessions and detections are
+persisted in PostgreSQL. The backend uses this data to calculate surveillance
+coverage, blind spots and scores.
 
 ## Current Status
 
-Completed:
+Space Sector is feature-complete and runs locally through Docker Compose.
 
-- Project repository and branch structure
-- Unity-focused `.gitignore`
-- Environment variable template
-- PostgreSQL running through Docker Compose
-- PostgreSQL health check
-- Persistent database storage verification
-- ASP.NET Core backend project created
-- Controller-based API routing configured
-- Project-specific `/health` endpoint created and tested
-  ASP.NET Core API containerized with Docker
-- Multi-stage Docker build configured
-- API and PostgreSQL started together with Docker Compose
-- API waits for PostgreSQL health check before starting
-- Dockerized `/health` endpoint tested through `localhost:8081`
-- `docker compose up --build` successfully tested
-- Persistent surveillance cameras with validated range and field of view
-- Persistent simulation sessions and camera detection records
-- Detection validation against existing NPCs, cameras, and sessions
-- Camera range and field-of-view visibility calculation
-- Blind-spot identification and coverage percentage
-- Basic surveillance score based on coverage
+Implemented:
 
-  Unity connects to the local ASP.NET Core API
-  Simulation sessions are created and persisted in PostgreSQL
-  Unity NPCs receive persistent backend GUIDs
-  Surveillance cameras receive persistent backend GUIDs
-  Camera detections are sent from Unity and stored in PostgreSQL
-  Existing NPCs and starting cameras are reused instead of duplicated on every Play session
-  Player-placed cameras are registered and persisted through the API
-  Surveillance coverage, blind spots and score are read from the backend and displayed in the Unity Game view
+- Unity WebGL surveillance simulation
+- ASP.NET Core Web API
+- PostgreSQL persistent database
+- Dockerized API, database and WebGL frontend
+- Persistent NPCs with unique GUIDs
+- Persistent surveillance cameras
+- Simulation sessions and detection records
+- Camera range and field-of-view calculations
+- Obstacle-based line-of-sight detection
+- Blind-spot detection
+- Coverage percentage and surveillance score
+- Player-placeable surveillance cameras
+- Persistent entity reuse to prevent duplicate NPCs and starting cameras
+- Surveillance data visualization in Unity
+- Browser-to-API communication through CORS
+- Automatic EF Core migrations on startup
+- Complete local startup using `docker compose up --build`
 
-The PostgreSQL database and basic ASP.NET Core API are currently runnable.
-The Unity application and database-backed API features have not been created yet.
+The complete application has been tested from a fresh PostgreSQL volume and can recreate its database schema automatically.
 
 ## Technology Stack
 
-- Unity
+- Unity 2022.3 LTS
+- Unity WebGL
 - C#
-- ASP.NET Core Web API
-- PostgreSQL
+- ASP.NET Core Web API (.NET 10)
+- Entity Framework Core
+- Npgsql
+- PostgreSQL 17
 - Docker
 - Docker Compose
-
-## Planned Features
-
-- NPCs with persistent unique identifiers
-- NPC movement through a space colony sector
-- Placeable surveillance cameras
-- Camera field-of-view detection
-- Persistent detection records
-- NPC position history
-- Blind-spot calculations
-- Score calculations
-- Data visualization in Unity
-- Local startup using Docker Compose
+- Nginx
 
 ## Running the Project
 
-The complete application is not runnable yet.
+The complete application runs locally using Docker Compose.
 
-The PostgreSQL database can already be started locally using Docker Compose.
-Instructions are provided in the [Running PostgreSQL](#running-postgresql)
-section.
+### Requirements
+
+- Docker Desktop
+- Git
+
+Unity is only required when editing or rebuilding the Unity project. A prebuilt WebGL build is included in the repository.
+
+### Setup
+
+Create a local `.env` file from the template:
+
+```bash
+cp .env.template .env
+```
+
+Replace the example PostgreSQL password in `.env` with a local development password.
+
+### Start the application
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+This starts:
+
+- PostgreSQL
+- ASP.NET Core Web API
+- Unity WebGL application served through Nginx
+
+Open the application at:
+
+```text
+http://localhost:8080
+```
+
+The API is available at:
+
+```text
+http://localhost:8081
+```
+
+### Stop the application
+
+```bash
+docker compose down
+```
+
+PostgreSQL data remains stored in the Docker volume.
+
+To intentionally remove all local database data:
+
+```bash
+docker compose down -v
+```
+
+On the next startup, EF Core migrations automatically recreate the database schema.
 
 ## Environment Variables
 
@@ -89,74 +124,69 @@ Replace the example PostgreSQL password with a local development password.
 
 The real `.env` file is ignored by Git and must not be committed.
 
-## Running PostgreSQL
+## Database Persistence
 
-Docker Desktop must be installed and running.
+PostgreSQL runs as the `database` service in Docker Compose.
 
-Start PostgreSQL:
+Application data is stored in the named Docker volume:
 
-```bash
-docker compose up -d
+```text
+postgres_data
 ```
 
-Check its status:
+This keeps NPCs, cameras, simulation sessions and detection records available when the containers are stopped and started again.
 
-```bash
-docker compose ps
-```
-
-The database service should display a status containing `(healthy)`.
-
-Stop PostgreSQL:
+Normal shutdown:
 
 ```bash
 docker compose down
 ```
 
-Database data is stored in a persistent Docker volume. Do not use:
+does not delete the stored database data.
+
+To intentionally reset the local database:
 
 ```bash
 docker compose down -v
 ```
 
-unless the stored database data should be deleted.
+The next `docker compose up --build` recreates PostgreSQL and automatically applies the EF Core migrations.
 
 ## Backend API
 
-The backend uses ASP.NET Core Web API with C# and is located in:
+The backend is an ASP.NET Core Web API located in:
 
 ```text
 backend/SpaceSector.Api
 ```
 
-A controller-based structure is used to keep future features such as NPCs,
-cameras, detections, and sessions separated.
+It uses controllers and services to separate responsibilities for:
 
-The current API contains a health endpoint:
+- NPCs
+- surveillance cameras
+- simulation sessions
+- detections
+- surveillance calculations
 
-```http
-GET /health
+Entity Framework Core with Npgsql is used to communicate with PostgreSQL.
+
+The API automatically applies EF Core migrations when it starts.
+
+### API address
+
+When running through Docker Compose, the API is available at:
+
+```text
+http://localhost:8081
 ```
 
-This endpoint was manually tested and returns a healthy status when the API is running.
-
-### Running the Backend API
-
-From the project root:
+The health endpoint can be tested with:
 
 ```bash
-cd backend/SpaceSector.Api
-dotnet restore
-dotnet run
+curl http://localhost:8081/health
 ```
 
-The API can be checked using:
-
-```bash
-curl http://localhost:5135/health
-```
-
-A successful response is:
+Example response:
 
 ```json
 {
@@ -165,11 +195,64 @@ A successful response is:
 }
 ```
 
+### Main API endpoints
+
+```text
+GET  /health
+
+GET  /npcs
+POST /npcs
+
+GET  /cameras
+POST /cameras
+
+POST /sessions
+POST /detections
+
+GET  /surveillance/visibility
+GET  /surveillance/summary
+```
+
+The Unity WebGL application uses these endpoints to register and reuse persistent entities, store detections and retrieve surveillance coverage data.
+
+## Architecture
+
+The Space Sector uses a three-part local architecture:
+
+```text
+Unity WebGL
+    |
+    | HTTP requests
+    v
+ASP.NET Core Web API
+    |
+    | Entity Framework Core / Npgsql
+    v
+PostgreSQL
+```
+
+## How to Use the Simulation
+
+After opening `http://localhost:8080`:
+
+- NPCs move automatically through the sector.
+- Surveillance cameras scan the environment for NPCs.
+- Click on the ground to place an additional surveillance camera.
+- Newly placed cameras are registered through the API and stored in PostgreSQL.
+- The surveillance panel shows:
+  - coverage percentage
+  - covered NPCs
+  - blind spots
+  - surveillance score
+- NPC labels display their persistent backend identifier.
+
+Camera visibility is based on range, field of view and line of sight. Buildings can block a camera's view of an NPC.
+
 ## AI Usage
 
 ### ASP.NET Core backend structure
 
-- **Conversation:**  
+- **Conversation:**
   https://chatgpt.com/share/6a75ad45-cfb0-83eb-9a90-92136ed818c0
 - **Question:** How should I structure my ASP.NET Core backend for NPCs,
   cameras, detections, and sessions while following SOLID principles?
@@ -179,13 +262,14 @@ A successful response is:
 - **Usage:** The conversation helped me understand the separation of
   responsibilities between `Program.cs`, controllers, services, repositories,
   and models.
-- **Own implementation:** I will introduce these abstractions gradually when
-  the related features are implemented instead of generating the entire
-  backend at once.
+- **Own implementation:** I used the suggested separation as guidance and implemented
+  project-specific controllers and services for NPCs, cameras, simulation sessions,
+  detections and surveillance logic. I decided which abstractions were useful for
+  Space Sector and tested the resulting structure throughout development.
 
 ### Project foundation and PostgreSQL setup
 
-- **Conversation:**  
+- **Conversation:**
   https://chatgpt.com/share/6a75b354-3e60-83eb-873b-38f351bde4ec
 - **Question:** How should I set up PostgreSQL with Docker Compose using a
   `.env` file and persistent storage?
@@ -201,7 +285,7 @@ A successful response is:
   manually tested persistence by inserting data, restarting the container,
   and checking that the data was still available.
 
-  ### Dockerized API and Docker troubleshooting
+### Dockerized API and Docker troubleshooting
 
 - **Conversation:** https://chatgpt.com/share/6a79b99a-d698-83eb-92f1-bf3014870afc
 - **Questions:** Asked about the purpose of `.dockerignore`, Docker port mapping,
@@ -214,7 +298,7 @@ A successful response is:
   the containers, and manually verified the `/health` endpoint through
   `localhost:8081`.
 
-  ### NPC persistence and EF Core
+### NPC persistence and EF Core
 
 - **Conversation:** https://chatgpt.com/share/6a7a2ded-267c-83eb-a122-749e5ef7ed2f
 - **Questions:** Asked how NPC persistence should work with EF Core and PostgreSQL,
@@ -232,9 +316,9 @@ A successful response is:
   migration, tested `POST /npcs`, verified the NPC directly in PostgreSQL, and
   confirmed the same NPC remained after recreating the Docker containers.
 
-  ### Surveillance system
+### Surveillance system
 
-- **Conversation:**  
+- **Conversation:**
   https://chatgpt.com/share/6a7b2bcf-6804-83ed-8300-48af62a4b2f4
 
 - **Questions discussed:**
@@ -253,14 +337,15 @@ A successful response is:
   - `Services/Detections/DetectionService.cs`
   - `Controllers/DetectionsController.cs`
 
-- **Usage:**  
+- **Usage:**
   AI was used to understand and review camera visibility calculations, blind-spot logic,
   detection validation and troubleshooting decisions. The project structure, implementation
   choices and final code were applied and tested within Space Sector.
 
-  ### AI usage – Unity API integration
+### AI usage – Unity API integration
 
-**Conversation:** <https://chatgpt.com/share/6a7f6d4a-e730-83ed-b6e8-b44f99a80e91>
+**Conversation:**
+<https://chatgpt.com/share/6a7f6d4a-e730-83ed-b6e8-b44f99a80e91>
 
 **Questions discussed:**
 
@@ -281,15 +366,19 @@ A successful response is:
 - `SurveillanceCameraView.cs`
 - NPC/camera GET endpoints in the ASP.NET Core backend
 
+**Usage:** AI was used to understand Unity-to-API communication, persistent entity reuse, runtime camera registration and debugging integration issues.
+
+**Own implementation:** I decided the Unity gameplay flow, backend responsibilities and persistence approach, then implemented and tested the final integration in Space Sector.
+
 ## Sources
 
 ### PostgreSQL with Docker Compose
 
-- **Docker Compose variable interpolation:**  
+- **Docker Compose variable interpolation:**
   https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
-- **PostgreSQL official Docker image:**  
+- **PostgreSQL official Docker image:**
   https://hub.docker.com/_/postgres
-- **Docker Compose service and health-check reference:**  
+- **Docker Compose service and health-check reference:**
   https://docs.docker.com/reference/compose-file/services/
 - **Applied in:** `.env.template`, `.env`, and `docker-compose.yml`
 - **Usage:** These sources helped me understand how Docker Compose reads
@@ -302,7 +391,7 @@ A successful response is:
 
 ### ASP.NET Core Web API
 
-- **Source:**  
+- **Source:**
   https://learn.microsoft.com/aspnet/core/web-api/
 - **Applied in:** `backend/SpaceSector.Api/Controllers/HealthController.cs`
   and `Program.cs`
@@ -313,7 +402,7 @@ A successful response is:
 
 ### .NET Web API project template
 
-- **Source:**  
+- **Source:**
   https://learn.microsoft.com/dotnet/core/tools/dotnet-new-sdk-templates
 - **Accessed:** 7 August 2026
 - **Applied in:** `backend/SpaceSector.Api`
@@ -325,26 +414,26 @@ A successful response is:
 
 ### Microsoft.OpenApi package
 
-- **Source:**  
+- **Source:**
   https://www.nuget.org/packages/Microsoft.OpenApi/2.11.0
 - **Applied in:** `backend/SpaceSector.Api/SpaceSector.Api.csproj`
 - **Usage:** The generated project initially contained an older package version
   that produced a vulnerability warning. I updated it to version `2.11.0` and
   confirmed that the project restored and built successfully.
 
-  ### Dockerized ASP.NET Core API
+### Dockerized ASP.NET Core API
 
-- **ASP.NET Core with Docker:**  
+- **ASP.NET Core with Docker:**
   https://learn.microsoft.com/aspnet/core/host-and-deploy/docker/building-net-docker-images?view=aspnetcore-10.0
-- **Docker multi-stage builds:**  
+- **Docker multi-stage builds:**
   https://docs.docker.com/build/building/multi-stage/
-- **Docker build context and `.dockerignore`:**  
+- **Docker build context and `.dockerignore`:**
   https://docs.docker.com/build/concepts/context/
-- **Docker Compose startup order and health checks:**  
+- **Docker Compose startup order and health checks:**
   https://docs.docker.com/compose/how-tos/startup-order/
-- **Docker Compose `up`:**  
+- **Docker Compose `up`:**
   https://docs.docker.com/reference/cli/docker/compose/up/
-- **ASP.NET Core container port 8080:**  
+- **ASP.NET Core container port 8080:**
   https://learn.microsoft.com/dotnet/core/compatibility/containers/8.0/aspnet-port
 
 **Applied in:**
@@ -363,13 +452,13 @@ healthy, and manually tested `GET /health` through `http://localhost:8081`.
 
 ### NPC persistence with EF Core and PostgreSQL
 
-- **EF Core migrations:**  
+- **EF Core migrations:**
   https://learn.microsoft.com/ef/core/managing-schemas/migrations/
-- **EF Core command-line tools:**  
+- **EF Core command-line tools:**
   https://learn.microsoft.com/ef/core/cli/dotnet
-- **ASP.NET Core model validation:**  
+- **ASP.NET Core model validation:**
   https://learn.microsoft.com/aspnet/core/mvc/models/validation
-- **Npgsql EF Core provider:**  
+- **Npgsql EF Core provider:**
   https://www.npgsql.org/efcore/
 
 **Applied in:** NPC model, DTO validation, `SpaceSectorDbContext`, migrations,
@@ -384,13 +473,13 @@ and confirmed the same NPC record still existed.
 
 ### Surveillance system
 
-- **EF Core relationships:**  
+- **EF Core relationships:**
   https://learn.microsoft.com/ef/core/modeling/relationships
-- **ASP.NET Core model validation:**  
+- **ASP.NET Core model validation:**
   https://learn.microsoft.com/aspnet/core/mvc/models/validation
-- **System.Numerics `Vector2`:**  
+- **System.Numerics `Vector2`:**
   https://learn.microsoft.com/dotnet/api/system.numerics.vector2
-- **EF Core tracking and `AsNoTracking`:**  
+- **EF Core tracking and `AsNoTracking`:**
   https://learn.microsoft.com/ef/core/querying/tracking
 
 **Applied in:**
@@ -452,3 +541,46 @@ verified stored records directly in PostgreSQL.
 **Usage:** Used to understand Unity HTTP communication and JSON serialization, raycasting and line-of-sight checks, reusable prefabs and runtime prefab instantiation, locating component instances in the scene, and controller-based ASP.NET Core API endpoints.
 
 **Own implementation and testing:** Implemented Unity API communication for sessions, NPCs, cameras and detections; reused persisted entities to prevent duplicates; registered runtime cameras; added obstacle-based camera visibility and ground-only placement; retrieved surveillance summary data; displayed persisted coverage, blind spots and score in Unity; and verified stored detections directly in PostgreSQL.
+
+### Unity WebGL and Docker deployment
+
+- **Unity Nginx configuration for Web builds:**
+  https://docs.unity3d.com/2022.3/Documentation/Manual/web-server-config-nginx.html
+
+- **ASP.NET Core CORS:**
+  https://learn.microsoft.com/aspnet/core/security/cors?view=aspnetcore-10.0
+
+- **Official Nginx Docker image:**
+  https://hub.docker.com/_/nginx
+
+**Applied in:**
+
+- `game/SpaceSector/nginx.conf`
+- `game/SpaceSector/Dockerfile`
+- `docker-compose.yml`
+- `backend/SpaceSector.Api/Program.cs`
+- `game/SpaceSector/WebGLBuild/`
+
+**Usage:** Used to configure Nginx for Unity's compressed WebGL files, serve the WebGL build from Docker, and allow the browser-based Unity application on port `8080` to communicate with the ASP.NET Core API on port `8081`.
+
+**Own implementation and testing:** Built the Unity WebGL application, added the Nginx game container, configured Docker Compose to start the game together with the API and PostgreSQL, added a restricted CORS policy for the local WebGL origin, and verified the complete application with `docker compose up --build` from a fresh PostgreSQL volume.
+
+## Limitations
+
+- NPC movement and camera sweep rotation are simulated live in Unity, but their transforms are not continuously synchronized to PostgreSQL.
+- Surveillance coverage is calculated using the positions and rotations currently stored by the backend.
+- Player-placed cameras are persisted in PostgreSQL, but previously placed runtime cameras are not recreated visually when the WebGL application is restarted.
+- The project is designed for local development and demonstration through Docker Compose.
+
+## Open-source Attribution
+
+Space Sector uses the following open-source software and libraries:
+
+- **ASP.NET Core** — MIT License
+- **Entity Framework Core** — MIT License
+- **Npgsql** — PostgreSQL License
+- **PostgreSQL** — PostgreSQL License
+- **NGINX Open Source** — simplified 2-clause BSD-like license
+
+These technologies remain the property of their respective authors and contributors.  
+Space Sector only contains project-specific source code and configuration built on top of these technologies.
